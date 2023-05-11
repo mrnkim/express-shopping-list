@@ -16,17 +16,19 @@ const {
 router.get("/", function (req, res) {
   return res.json({ items: items });
 });
-// items = [ {name: "item", price: num},{} ]
+
 
 /** POST /items: add item*/
 
 router.post("/", function (req, res) {
   if (req.body === undefined) throw new BadRequestError();
   const newItem = { name: req.body.name, price: req.body.price };
-  items.push(newItem);
-  return res.json(newItem);
+  const result = {added: newItem}
+  items.push(newItem)
+  return res.json(result);
 });
 
+//  /**get a list of items */ TODO: use find method
 router.get("/:name", function (req, res) {
   for (let item of items) {
     if (item.name === req.params.name) {
@@ -35,12 +37,31 @@ router.get("/:name", function (req, res) {
   }
 });
 
+/** PATCH /:name update item*/
 
+router.patch("/:name", function(req,res){
+  if (req.body === undefined) throw new BadRequestError();
+  let patchItem;
+  for (let item of items) {
+    if (item.name === req.params.name) {
+      patchItem = item;
+    }}
+    patchItem.name = req.body.name;
+    patchItem.price = req.body.price;
 
-/** DELETE /users/[id]: delete user, return {message: Deleted} */
-router.delete("/:id", function (req, res) {
-  db.User.delete(req.params.id);
-  return res.json({ message: "Deleted" });
-});
+  const result = {updated: patchItem};
+  return res.json(result);
+})
+
+/**DELETE /:name delete item */
+router.delete("/:name", function(req,res){
+  for (let item of items){
+    if (item.name === req.params.name){
+      let deleteIndex = items.indexOf(item)
+      items.splice(deleteIndex,1)
+    }
+  }
+  return res.json({ message: "Deleted" })
+})
 
 module.exports = router;
