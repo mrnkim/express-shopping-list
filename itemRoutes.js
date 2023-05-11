@@ -1,67 +1,71 @@
-/** Routes for sample app. */
+"use strict";
+/** Routes for shopping list app. */
 
 const express = require("express");
 
 const { items } = require("./fakeDb");
 const router = new express.Router();
-const {
-  ExpressError,
-  NotFoundError,
-  UnauthorizedError,
-  BadRequestError,
-  ForbiddenError,
-} = require("./expressError");
+const { NotFoundError, BadRequestError } = require("./expressError");
 
 /** GET /items: get list of items */
 router.get("/", function (req, res) {
   return res.json({ items: items });
 });
 
-
 /** POST /items: add item*/
 
 router.post("/", function (req, res) {
   if (req.body === undefined) throw new BadRequestError();
   const newItem = { name: req.body.name, price: req.body.price };
-  const result = {added: newItem}
-  items.push(newItem)
-  return res.json(result);
+  items.push(newItem);
+
+  return res.json({ added: newItem });
 });
 
-//  /**get a list of items */ TODO: use find method
-router.get("/:name", function (req, res) { //TODO: add guard
+/**get a list of items */
+router.get("/:name", function (req, res) {
+  if (items.length === 0) {
+    throw new NotFoundError();
+  }
+
   for (let item of items) {
     if (item.name === req.params.name) {
       return res.json(item);
     }
+
+    throw new NotFoundError();
   }
 });
 
 /** PATCH /:name update item*/
 
-router.patch("/:name", function(req,res){
+router.patch("/:name", function (req, res) {
   if (req.body === undefined) throw new BadRequestError();
-  let patchItem;
+
+  let itemToPatch;
   for (let item of items) {
     if (item.name === req.params.name) {
-      patchItem = item;
-    }}
-    patchItem.name = req.body.name;
-    patchItem.price = req.body.price;
-
-  const result = {updated: patchItem};
-  return res.json(result);
-})
-
-/**DELETE /:name delete item */
-router.delete("/:name", function(req,res){
-  for (let item of items){
-    if (item.name === req.params.name){
-      let deleteIndex = items.indexOf(item)
-      items.splice(deleteIndex,1)
+      itemToPatch = item;
     }
   }
-  return res.json({ message: "Deleted" })
-})
+
+  itemToPatch.name = req.body.name;
+  itemToPatch.price = req.body.price;
+
+  return res.json({ updated: itemToPatch });
+});
+
+/**DELETE /:name delete item */
+router.delete("/:name", function (req, res) {
+  for (let item of items) {
+    if (item.name === req.params.name) {
+      let deleteIndex = items.indexOf(item);
+      items.splice(deleteIndex, 1);
+    } else {
+      throw new NotFoundError();
+    }
+  }
+  return res.json({ message: "Deleted" });
+});
 
 module.exports = router;

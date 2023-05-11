@@ -1,21 +1,20 @@
 const request = require("supertest");
 
 const app = require("./app");
-const db = require("./fakeDb");
-console.log("db= ", db);
+let { items } = require("./fakeDb");
+
 beforeEach(function () {
-  console.log("db.items= ", db.items);
-  db.items.push({
+  items.push({
     name: "popsicle",
     price: "$3",
   });
 });
 
 afterEach(function () {
-  db.items = [];
+  items = [];
 });
 
-test("valid", async function () {
+test("GET /items valid", async function () {
   const resp = await request(app).get("/items");
   expect(resp.body).toEqual({ items: [{ name: "popsicle", price: "$3" }] });
 });
@@ -27,10 +26,10 @@ describe("GET /items/:name", function () {
     expect(resp.body).toEqual({ name: "popsicle", price: "$3" });
   });
 
-  // test("invalid", async function () {
-  //   const resp = await request(app).get("/items/chocolate");
-  //   expect(resp.status).toEqual(404);
-  // });
+  test("invalid", async function () {
+    const resp = await request(app).get("/items/chocolate");
+    expect(resp.status).toEqual(404);
+  });
 });
 
 // test("DELETE /users", async function () {
