@@ -29,7 +29,7 @@ router.post("/", function (req, res) {
 });
 
 //  /**get a list of items */ TODO: use find method
-router.get("/:name", function (req, res) {
+router.get("/:name", function (req, res) { //TODO: add guard
   for (let item of items) {
     if (item.name === req.params.name) {
       return res.json(item);
